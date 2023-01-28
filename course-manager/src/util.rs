@@ -1,12 +1,11 @@
+use crate::error;
 
-pub enum Error {
-    UserDirNotFound,
-    CouldNotCreatePath(PathBuf, std::io::Error),
-    CouldNotCreateFile(PathBuf, std::io::Error),
-    CouldNotOpenFile(PathBuf, std::io::Error),
-    CouldNotParseConfig(figment::error::Error),
-    CouldNotParseJson(serde_json::Error),
-    TranslationError(TranslationError),
+fn is_debug() -> bool {
+    cfg!(debug_assertions)
+}
+
+fn app_name() -> String {
+    "course-manager".to_string()
 }
 
 /// Returns the path of the app user config directory
@@ -16,7 +15,7 @@ pub enum Error {
 /// | ------------------ | ------------------------------------- |
 /// | UserDirNotFound    | The user directory could not be found |
 /// | CouldNotCreatePath | The app path could not be created     |
-pub fn get_app_config_dir() -> Result<std::path::PathBuf, error::Error> {
+fn get_app_config_dir() -> Result<std::path::PathBuf, error::Error> {
     let app_dir = dirs::config_dir()
         .ok_or(error::Error::UserDirNotFound)?
         .join(app_name());
@@ -39,15 +38,15 @@ pub fn get_app_config_dir() -> Result<std::path::PathBuf, error::Error> {
 /// ## notes
 /// on a debug build this will be the current directory
 /// on a release build this will be in the respective app data directory
-pub fn get_app_data_dir() -> Result<std::path::PathBuf, error::Error> {
+pub(crate) fn get_app_data_dir() -> Result<std::path::PathBuf, error::Error> {
     if is_debug() {
         // get the app dir from manifest dir
         let dir = env!("CARGO_MANIFEST_DIR");
-        match std::path::PathBuf::from(dir).parent(){
+        match std::path::PathBuf::from(dir).parent() {
             Some(path) => {
                 return Ok(path.to_path_buf());
-            },
-            None => Err(error::Error::UserDirNotFound)
+            }
+            None => Err(error::Error::UserDirNotFound),
         }
     } else {
         let app_dir = dirs::data_local_dir()
