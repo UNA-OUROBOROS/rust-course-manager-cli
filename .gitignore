@@ -1,3 +1,4 @@
 /target
+/courses
 # do not track the .vscode folder
 /.vscode
