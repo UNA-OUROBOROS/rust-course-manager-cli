@@ -1,7 +1,7 @@
 mod cli;
 mod util;
 use clap::{CommandFactory, Parser};
-use course_manager::{approve_courses, requires_init};
+use course_manager::{approve_courses, reject_courses, requires_init};
 
 use cli::{to_course_status, Cli, Commands, PrintFormat};
 
@@ -92,7 +92,25 @@ fn main() {
                 match approve_courses(&list_courses.courses) {
                     Ok(_) => {
                         println!("courses approved successfully");
-                    },
+                    }
+                    Err(e) => {
+                        println!("{:#?}", e);
+                    }
+                }
+            }
+            Err(e) => {
+                println!("{:#?}", e);
+            }
+        },
+        Some(Commands::RejectCourses(list_courses)) => match requires_init() {
+            Ok(requires_init) => {
+                if requires_init {
+                    println!("please init the courses list first");
+                }
+                match reject_courses(&list_courses.courses, list_courses.cascade) {
+                    Ok(_) => {
+                        println!("courses rejected successfully");
+                    }
                     Err(e) => {
                         println!("{:#?}", e);
                     }

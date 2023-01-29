@@ -19,7 +19,9 @@ pub(crate) enum Commands {
     #[command(about = "List and filter courses")]
     ListCourses(ListCourses),
     #[command(about = "Aprove a series of courses")]
-    AproveCourses(AproveCourse),
+    AproveCourses(AproveCourses),
+    #[command(about = "Reject a series of courses")]
+    RejectCourses(RejectCourses),
 }
 
 #[derive(Args)]
@@ -55,14 +57,24 @@ pub(crate) struct ListCourses {
 }
 
 #[derive(Args)]
-pub(crate) struct AproveCourse {
-    #[arg(
-        help = "Courses to aprove",
-        required = true
-    )]
+pub(crate) struct AproveCourses {
+    #[arg(help = "Courses to aprove", required = true)]
     pub(crate) courses: Vec<String>,
 }
 
+#[derive(Args)]
+pub(crate) struct RejectCourses {
+    #[arg(help = "Courses to reject", required = true)]
+    pub(crate) courses: Vec<String>,
+    #[arg(
+        short = 'c',
+        long = "cascade",
+        help = "reject in cascade the courses that depend on the rejected courses",
+        required = false,
+        default_value = "false"
+    )]
+    pub(crate) cascade: bool,
+}
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 pub(crate) enum Format {
     Csv,

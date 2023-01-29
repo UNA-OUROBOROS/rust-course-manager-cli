@@ -131,3 +131,10 @@ pub fn approve_courses(courses: &Vec<String>) -> Result<(), error::Error> {
     std::fs::write(&path, json).map_err(|e| error::Error::CouldNotCreateFile(path, e))?;
     Ok(())
 }
+
+///
+/// Reject a series of courses
+/// if cascade is true, all courses that require the rejected courses will also be rejected
+pub fn reject_courses(courses: &Vec<String>, cascade: bool) -> Result<(), error::Error>{
+    todo!()
+}
