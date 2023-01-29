@@ -46,21 +46,59 @@ pub fn initialize_courses(courses: Vec<courses::Course>) -> Result<(), error::Er
 /// if the filter is None, all courses are returned
 /// if the filter is Some, only courses that match the filter are returned
 pub fn get_courses(status: Option<CourseStatus>) -> Result<Vec<Course>, error::Error> {
-    // TODO
+    // load courses from courses.json
+    let path = courses_files_path()?.join("courses.json");
+    let json =
+        std::fs::read_to_string(&path).map_err(|e| error::Error::CouldNotOpenFile(path, e))?;
+    let courses: Vec<Course> =
+        serde_json::from_str(&json).map_err(|e| error::Error::JsonDeserialization(e))?;
     match status {
         Some(status) => {
-            todo!()
+            // load approved.json
+            let path = courses_files_path()?.join("approved.json");
+            let json = std::fs::read_to_string(&path)
+                .map_err(|e| error::Error::CouldNotOpenFile(path, e))?;
+            let approved: Vec<String> =
+                serde_json::from_str(&json).map_err(|e| error::Error::JsonDeserialization(e))?;
+            let mut filtered_courses: Vec<Course> = Vec::new();
+            match status {
+                CourseStatus::Completed => {
+                    // fetch all courses that are in approved.json
+                    for course in courses {
+                        if approved.contains(&course.code) {
+                            filtered_courses.push(course);
+                        }
+                    }
+                }
+                CourseStatus::Blocked | CourseStatus::Available => {
+                    let requires_aproved = status == CourseStatus::Available;
+                    // fetch all courses that are not in approved.json
+                    for course in courses {
+                        if !approved.contains(&course.code) {
+                            // and if that the status is the same as the filter
+                            let requires_met = requirements_met(&course, &approved);
+                            if requires_aproved == requires_met {
+                                filtered_courses.push(course);
+                            }
+                        }
+                    }
+                }
+            }
+            Ok(filtered_courses)
         }
         None => {
-            // load courses from courses.json
-            let path = courses_files_path()?.join("courses.json");
-            let json = std::fs::read_to_string(&path)
-                .map_err(|e| error::Error::CouldNotCreateFile(path, e))?;
-            let courses =
-                serde_json::from_str(&json).map_err(|e| error::Error::JsonDeserialization(e))?;
             return Ok(courses);
         }
     }
+}
+
+fn requirements_met(course: &Course, approved: &Vec<String>) -> bool {
+    for requirement in &course.requirements {
+        if !approved.contains(&requirement) {
+            return false;
+        }
+    }
+    return true;
 }
 
 #[cfg(test)]
