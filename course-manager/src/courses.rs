@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Course {
     pub id: String,
     pub name: String,
@@ -18,4 +18,15 @@ pub enum CourseStatus {
     Blocked,
     Completed,
     Available,
+}
+
+// display for course status
+impl std::fmt::Display for CourseStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            CourseStatus::Blocked => write!(f, "Blocked"),
+            CourseStatus::Completed => write!(f, "Completed"),
+            CourseStatus::Available => write!(f, "Available"),
+        }
+    }
 }

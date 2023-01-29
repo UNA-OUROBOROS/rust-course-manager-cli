@@ -58,6 +58,7 @@ pub(crate) enum Format {
 pub(crate) enum PrintFormat {
     Table,
     Json,
+    Raw,
 }
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 pub(crate) enum CourseStatus {

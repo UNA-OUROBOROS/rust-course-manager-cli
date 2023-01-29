@@ -3,7 +3,7 @@ mod util;
 use clap::{CommandFactory, Parser};
 use course_manager::requires_init;
 
-use cli::{Cli, Commands};
+use cli::{to_course_status, Cli, Commands, PrintFormat};
 
 use crate::cli::Format;
 
@@ -26,15 +26,30 @@ fn main() {
                     println!("please init the courses list first");
                 } else {
                     let status = list_courses.status;
-                    println!(
-                        "status: {:?}",
-                        match status {
-                            cli::CourseStatus::All => "all",
-                            cli::CourseStatus::Blocked => "blocked",
-                            cli::CourseStatus::Completed => "completed",
-                            cli::CourseStatus::Available => "available",
+                    let courses = course_manager::get_courses(to_course_status(status));
+                    match list_courses.print_format {
+                        PrintFormat::Json => {
+                            println!("{}", serde_json::to_string_pretty(&courses).unwrap());
                         }
-                    );
+                        PrintFormat::Table => {
+                            let mut table = prettytable::Table::new();
+                            table.add_row(prettytable::row!["ID", "Name", "Status"]);
+                            for course in courses {
+                                table.add_row(prettytable::row![
+                                    course.id,
+                                    course.name,
+                                    match course.status {
+                                        Some(status) => status.to_string(),
+                                        None => "N/A".to_string(),
+                                    }
+                                ]);
+                            }
+                            table.printstd();
+                        }
+                        PrintFormat::Raw => {
+                            println!("{:#?}", courses);
+                        }
+                    }
                 }
             }
             Err(e) => {
