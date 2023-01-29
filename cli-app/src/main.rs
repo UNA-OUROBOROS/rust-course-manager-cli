@@ -11,14 +11,22 @@ fn main() {
     let cli = Cli::parse();
     match &cli.command {
         Some(Commands::InitCourses(init_courses)) => {
-            println!(
-                "format: {}, url: {}",
-                match init_courses.format {
-                    Format::Csv => "csv",
-                    Format::Json => "json",
-                },
-                init_courses.url
-            );
+            // check if begins with https
+            match init_courses.uri.starts_with("https://") {
+                true => {
+                    println!("HTTPS is not supported yet");
+                }
+                false => {
+                    println!(
+                        "format: {}, url: {}",
+                        match init_courses.format {
+                            Format::Csv => "csv",
+                            Format::Json => "json",
+                        },
+                        init_courses.uri
+                    );
+                }
+            }
         }
         Some(Commands::ListCourses(list_courses)) => match requires_init() {
             Ok(requires_init) => {

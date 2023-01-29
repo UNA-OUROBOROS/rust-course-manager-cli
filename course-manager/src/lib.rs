@@ -1,6 +1,8 @@
 use courses::{Course, CourseStatus};
+use db::init_db;
 
 pub mod courses;
+mod db;
 mod error;
 mod util;
 
@@ -31,7 +33,11 @@ pub fn initialize_courses(courses: Vec<courses::Course>) -> Result<(), error::Er
     let json = serde_json::to_string(&courses).map_err(|e| error::Error::JsonSerialization(e))?;
     let path = courses_files_path()?.join("courses.json");
     match std::fs::write(&path, json) {
-        Ok(_) => Ok(()),
+        Ok(_) => {
+            init_db()?;
+            // TODO: copy the courses to the db
+            Ok(())
+        }
         Err(e) => Err(error::Error::CouldNotCreateFile(path, e)),
     }
 }

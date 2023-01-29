@@ -23,8 +23,8 @@ pub(crate) enum Commands {
 pub(crate) struct InitCourses {
     #[arg(required = true, help = "Format of the source")]
     pub(crate) format: Format,
-    #[arg(required = true, help = "URL of the source")]
-    pub(crate) url: String,
+    #[arg(required = true, help = "URI of the source, can be a local file or a https url")]
+    pub(crate) uri: String,
 }
 
 #[derive(Args)]
