@@ -25,7 +25,7 @@ fn main() {
                 if requires_init {
                     println!("please init the courses list first");
                 } else {
-                    let status = list_courses.status.unwrap_or(cli::CourseStatus::All);
+                    let status = list_courses.status;
                     println!(
                         "status: {:?}",
                         match status {

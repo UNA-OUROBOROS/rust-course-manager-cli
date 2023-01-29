@@ -33,14 +33,30 @@ pub(crate) struct ListCourses {
         short = 's',
         long = "status",
         help = "Status of the courses to list",
-        required = false,
+        default_value = "all",
+        required = false
     )]
-    pub(crate) status: Option<CourseStatus>,
+    pub(crate) status: CourseStatus,
+    // print format, by default table
+    #[arg(
+        short = 'f',
+        long = "format",
+        help = "Format of the output",
+        default_value = "table",
+        required = false
+    )]
+    pub(crate) print_format: PrintFormat,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 pub(crate) enum Format {
     Csv,
+    Json,
+}
+
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub(crate) enum PrintFormat {
+    Table,
     Json,
 }
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
@@ -49,4 +65,15 @@ pub(crate) enum CourseStatus {
     Blocked,
     Completed,
     Available,
+}
+
+pub(crate) fn to_course_status(
+    status: CourseStatus,
+) -> Option<course_manager::courses::CourseStatus> {
+    match status {
+        CourseStatus::All => None,
+        CourseStatus::Blocked => Some(course_manager::courses::CourseStatus::Blocked),
+        CourseStatus::Completed => Some(course_manager::courses::CourseStatus::Completed),
+        CourseStatus::Available => Some(course_manager::courses::CourseStatus::Available),
+    }
 }

@@ -7,5 +7,5 @@ pub enum Error {
     CouldNotCreateFile(PathBuf, std::io::Error),
     CouldNotOpenFile(PathBuf, std::io::Error),
     CouldNotParseConfig(figment::error::Error),
-    CouldNotParseJson(serde_json::Error),
+    JsonSerialization(serde_json::Error),
 }
