@@ -2,6 +2,8 @@ use courses::{Course, CourseStatus};
 
 pub mod courses;
 mod error;
+#[cfg(test)]
+mod tests;
 mod util;
 
 pub fn add(left: usize, right: usize) -> usize {
@@ -99,17 +101,6 @@ fn requirements_met(course: &Course, approved: &Vec<String>) -> bool {
         }
     }
     return true;
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
 }
 
 pub fn get_courses_from_json(path: String) -> Result<Vec<Course>, error::Error> {
