@@ -109,3 +109,25 @@ pub fn get_courses_from_json(path: String) -> Result<Vec<Course>, error::Error> 
     let courses = serde_json::from_str(&json).map_err(|e| error::Error::JsonDeserialization(e))?;
     return Ok(courses);
 }
+
+pub fn approve_courses(courses: &Vec<String>) -> Result<(), error::Error> {
+    let path = courses_files_path()?.join("approved.json");
+    let json = std::fs::read_to_string(&path)
+        .map_err(|e| error::Error::CouldNotOpenFile(path.clone(), e))?;
+    let mut approved: Vec<String> =
+        serde_json::from_str(&json).map_err(|e| error::Error::JsonDeserialization(e))?;
+    for course in courses {
+        if approved.contains(&course) {
+            return Err(error::Error::CourseAlreadyApproved(course.to_string()));
+        }
+        // check that the course exists
+        let courses = get_courses(None)?;
+        if !courses.iter().any(|c| &c.code == course) {
+            return Err(error::Error::CourseDoesNotExist(course.to_string()));
+        }
+        approved.push(course.to_string());
+    }
+    let json = serde_json::to_string(&approved).map_err(|e| error::Error::JsonSerialization(e))?;
+    std::fs::write(&path, json).map_err(|e| error::Error::CouldNotCreateFile(path, e))?;
+    Ok(())
+}

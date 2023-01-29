@@ -16,14 +16,20 @@ pub(crate) struct Cli {
 pub(crate) enum Commands {
     #[command(about = "Initialize the courses list")]
     InitCourses(InitCourses),
+    #[command(about = "List and filter courses")]
     ListCourses(ListCourses),
+    #[command(about = "Aprove a series of courses")]
+    AproveCourses(AproveCourse),
 }
 
 #[derive(Args)]
 pub(crate) struct InitCourses {
     #[arg(required = true, help = "Format of the source")]
     pub(crate) format: Format,
-    #[arg(required = true, help = "URI of the source, can be a local file or a https url")]
+    #[arg(
+        required = true,
+        help = "URI of the source, can be a local file or a https url"
+    )]
     pub(crate) uri: String,
 }
 
@@ -46,6 +52,15 @@ pub(crate) struct ListCourses {
         required = false
     )]
     pub(crate) print_format: PrintFormat,
+}
+
+#[derive(Args)]
+pub(crate) struct AproveCourse {
+    #[arg(
+        help = "Courses to aprove",
+        required = true
+    )]
+    pub(crate) courses: Vec<String>,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
