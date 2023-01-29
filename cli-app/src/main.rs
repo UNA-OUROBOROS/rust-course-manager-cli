@@ -17,14 +17,29 @@ fn main() {
                     println!("HTTPS is not supported yet");
                 }
                 false => {
-                    println!(
-                        "format: {}, url: {}",
-                        match init_courses.format {
-                            Format::Csv => "csv",
-                            Format::Json => "json",
+                    let courses = match init_courses.format {
+                        Format::Csv => {
+                            print!("CSV is not supported yet");
+                            todo!()
+                        }
+                        Format::Json => {
+                            let path = init_courses.uri.clone();
+                            course_manager::get_courses_from_json(path)
+                        }
+                    };
+                    match courses {
+                        Ok(courses) => match course_manager::initialize_courses(courses) {
+                            Ok(_) => {
+                                println!("courses initialized successfully");
+                            }
+                            Err(e) => {
+                                println!("{:#?}", e);
+                            }
                         },
-                        init_courses.uri
-                    );
+                        Err(e) => {
+                            println!("{:#?}", e);
+                        }
+                    }
                 }
             }
         }

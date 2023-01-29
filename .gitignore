@@ -1,5 +1,6 @@
 /target
-/courses
 # do not track the .vscode folder
 /.vscode
 .env
+# do not track the database
+db.sqlite

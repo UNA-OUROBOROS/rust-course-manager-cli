@@ -14,9 +14,7 @@ fn run_migration(conn: &mut SqliteConnection) -> Result<(), Error> {
 }
 
 fn get_database_path() -> Result<std::path::PathBuf, Error> {
-    Ok(crate::util::get_app_data_dir()?
-        .join("store")
-        .join("courses.sqlite"))
+    Ok(crate::util::get_app_data_dir()?.join("db.sqlite"))
 }
 
 fn get_connection() -> Result<SqliteConnection, Error> {
@@ -27,6 +25,9 @@ fn get_connection() -> Result<SqliteConnection, Error> {
 }
 
 pub(crate) fn init_db() -> Result<(), Error> {
+    // create the database file if it does not exist
+    let db_path = get_database_path()?;
+    std::fs::File::create(&db_path).map_err(|e| Error::CouldNotCreateFile(db_path, e))?;
     let mut conn = get_connection()?;
     run_migration(&mut conn)
 }
