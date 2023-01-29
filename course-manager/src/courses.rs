@@ -6,8 +6,8 @@ pub struct Course {
     pub name: String,
     pub credits: u8,
     pub requirements: Vec<String>,
+    pub year: u8,
     pub semester: u8,
-    pub cicle: u8,
     pub is_bachelor: bool,
     // optional status
     pub status: Option<CourseStatus>,
