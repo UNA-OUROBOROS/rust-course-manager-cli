@@ -2,5 +2,5 @@
 # do not track the .vscode folder
 /.vscode
 .env
-# do not track the database
-db.sqlite
+# do not track the courses folder
+/courses

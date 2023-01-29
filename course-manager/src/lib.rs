@@ -1,8 +1,6 @@
 use courses::{Course, CourseStatus};
-use db::init_db;
 
 pub mod courses;
-mod db;
 mod error;
 mod util;
 
@@ -28,8 +26,19 @@ pub fn requires_init() -> Result<bool, error::Error> {
 /// or when the course data is missing
 /// keep in mind that this will overwrite the existing course data, so an backup should be made if want to keep the old data
 pub fn initialize_courses(courses: Vec<courses::Course>) -> Result<(), error::Error> {
-    init_db()?;
-    // TODO copy the contents to the database
+    let path = courses_files_path()?;
+    if !&path.exists() {
+        std::fs::create_dir(&path)
+            .map_err(|e| error::Error::CouldNotCreatePath(path.clone(), e))?;
+    }
+    let path = path.join("courses.json");
+    let json = serde_json::to_string(&courses).map_err(|e| error::Error::JsonSerialization(e))?;
+    std::fs::write(&path, json).map_err(|e| error::Error::CouldNotCreateFile(path, e))?;
+    // additionally create a aproved.json whcih is a vector of strings
+    let path = courses_files_path()?.join("approved.json");
+    let json = serde_json::to_string(&Vec::<String>::new())
+        .map_err(|e| error::Error::JsonSerialization(e))?;
+    std::fs::write(&path, json).map_err(|e| error::Error::CouldNotCreateFile(path, e))?;
     Ok(())
 }
 

@@ -9,6 +9,4 @@ pub enum Error {
     CouldNotParseConfig(figment::error::Error),
     JsonSerialization(serde_json::Error),
     JsonDeserialization(serde_json::Error),
-    InitDbError,
-    DbConnection(diesel::ConnectionError),
 }
