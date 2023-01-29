@@ -24,6 +24,7 @@ pub fn requires_init() -> Result<bool, error::Error> {
 /// initialize the courses list with a list of courses
 /// this is usually done when the app is run for the first time
 /// or when the course data is missing
+/// keep in mind that this will overwrite the existing course data, so an backup should be made if want to keep the old data
 pub fn initialize_courses(courses: Vec<courses::Course>) -> Result<(), error::Error> {
     // create the courses.json file in the app data dir
     // write the courses to the file
@@ -38,9 +39,22 @@ pub fn initialize_courses(courses: Vec<courses::Course>) -> Result<(), error::Er
 /// gets a filtered list of courses
 /// if the filter is None, all courses are returned
 /// if the filter is Some, only courses that match the filter are returned
-pub fn get_courses(status: Option<CourseStatus>) -> Vec<Course> {
+pub fn get_courses(status: Option<CourseStatus>) -> Result<Vec<Course>, error::Error> {
     // TODO
-    return Vec::new();
+    match status {
+        Some(status) => {
+            return Ok(Vec::new());
+        }
+        None => {
+            // load courses from courses.json
+            let path = courses_files_path()?.join("courses.json");
+            let json = std::fs::read_to_string(&path)
+                .map_err(|e| error::Error::CouldNotCreateFile(path, e))?;
+            let courses =
+                serde_json::from_str(&json).map_err(|e| error::Error::JsonDeserialization(e))?;
+            return Ok(courses);
+        }
+    }
 }
 
 #[cfg(test)]

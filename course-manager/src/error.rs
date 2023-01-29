@@ -8,4 +8,5 @@ pub enum Error {
     CouldNotOpenFile(PathBuf, std::io::Error),
     CouldNotParseConfig(figment::error::Error),
     JsonSerialization(serde_json::Error),
+    JsonDeserialization(serde_json::Error),
 }

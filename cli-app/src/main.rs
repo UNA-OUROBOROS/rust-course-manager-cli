@@ -27,27 +27,32 @@ fn main() {
                 } else {
                     let status = list_courses.status;
                     let courses = course_manager::get_courses(to_course_status(status));
-                    match list_courses.print_format {
-                        PrintFormat::Json => {
-                            println!("{}", serde_json::to_string_pretty(&courses).unwrap());
-                        }
-                        PrintFormat::Table => {
-                            let mut table = prettytable::Table::new();
-                            table.add_row(prettytable::row!["ID", "Name", "Status"]);
-                            for course in courses {
-                                table.add_row(prettytable::row![
-                                    course.id,
-                                    course.name,
-                                    match course.status {
-                                        Some(status) => status.to_string(),
-                                        None => "N/A".to_string(),
-                                    }
-                                ]);
+                    match courses {
+                        Ok(courses) => match list_courses.print_format {
+                            PrintFormat::Json => {
+                                println!("{}", serde_json::to_string_pretty(&courses).unwrap());
                             }
-                            table.printstd();
-                        }
-                        PrintFormat::Raw => {
-                            println!("{:#?}", courses);
+                            PrintFormat::Table => {
+                                let mut table = prettytable::Table::new();
+                                table.add_row(prettytable::row!["ID", "Name", "Status"]);
+                                for course in courses {
+                                    table.add_row(prettytable::row![
+                                        course.id,
+                                        course.name,
+                                        match course.status {
+                                            Some(status) => status.to_string(),
+                                            None => "N/A".to_string(),
+                                        }
+                                    ]);
+                                }
+                                table.printstd();
+                            }
+                            PrintFormat::Raw => {
+                                println!("{:#?}", courses);
+                            }
+                        },
+                        Err(e) => {
+                            println!("{:#?}", e);
                         }
                     }
                 }
