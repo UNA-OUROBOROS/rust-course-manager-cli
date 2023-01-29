@@ -34,10 +34,10 @@ fn main() {
                             }
                             PrintFormat::Table => {
                                 let mut table = prettytable::Table::new();
-                                table.add_row(prettytable::row!["ID", "Name", "Status"]);
+                                table.add_row(prettytable::row!["Code", "Name", "Status"]);
                                 for course in courses {
                                     table.add_row(prettytable::row![
-                                        course.id,
+                                        course.code,
                                         course.name,
                                         match course.status {
                                             Some(status) => status.to_string(),

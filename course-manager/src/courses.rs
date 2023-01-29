@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Course {
-    pub id: String,
+    pub code: String,
     pub name: String,
     pub credits: u8,
     pub requirements: Vec<String>,
