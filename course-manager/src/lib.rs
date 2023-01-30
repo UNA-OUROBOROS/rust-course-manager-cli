@@ -37,10 +37,7 @@ pub fn initialize_courses(courses: Vec<courses::Course>) -> Result<(), error::Er
     let json = serde_json::to_string(&courses).map_err(|e| error::Error::JsonSerialization(e))?;
     std::fs::write(&path, json).map_err(|e| error::Error::CouldNotCreateFile(path, e))?;
     // additionally create a aproved.json whcih is a vector of strings
-    let path = courses_files_path()?.join("approved.json");
-    let json = serde_json::to_string(&Vec::<String>::new())
-        .map_err(|e| error::Error::JsonSerialization(e))?;
-    std::fs::write(&path, json).map_err(|e| error::Error::CouldNotCreateFile(path, e))?;
+    save_aproved(&Vec::new())?;
     Ok(())
 }
 
@@ -57,11 +54,7 @@ pub fn get_courses(status: Option<CourseStatus>) -> Result<Vec<Course>, error::E
     match status {
         Some(status) => {
             // load approved.json
-            let path = courses_files_path()?.join("approved.json");
-            let json = std::fs::read_to_string(&path)
-                .map_err(|e| error::Error::CouldNotOpenFile(path, e))?;
-            let approved: Vec<String> =
-                serde_json::from_str(&json).map_err(|e| error::Error::JsonDeserialization(e))?;
+            let approved: Vec<String> = load_aproved()?;
             let mut filtered_courses: Vec<Course> = Vec::new();
             match status {
                 CourseStatus::Completed => {
@@ -111,11 +104,7 @@ pub fn get_courses_from_json(path: String) -> Result<Vec<Course>, error::Error> 
 }
 
 pub fn approve_courses(courses: &Vec<String>) -> Result<(), error::Error> {
-    let path = courses_files_path()?.join("approved.json");
-    let json = std::fs::read_to_string(&path)
-        .map_err(|e| error::Error::CouldNotOpenFile(path.clone(), e))?;
-    let mut approved: Vec<String> =
-        serde_json::from_str(&json).map_err(|e| error::Error::JsonDeserialization(e))?;
+    let mut approved: Vec<String> = load_aproved()?;
     for course in courses {
         if approved.contains(&course) {
             return Err(error::Error::CourseAlreadyApproved(course.to_string()));
@@ -127,14 +116,46 @@ pub fn approve_courses(courses: &Vec<String>) -> Result<(), error::Error> {
         }
         approved.push(course.to_string());
     }
-    let json = serde_json::to_string(&approved).map_err(|e| error::Error::JsonSerialization(e))?;
-    std::fs::write(&path, json).map_err(|e| error::Error::CouldNotCreateFile(path, e))?;
+    save_aproved(&approved)?;
     Ok(())
 }
 
 ///
 /// Reject a series of courses
 /// if cascade is true, all courses that require the rejected courses will also be rejected
-pub fn reject_courses(courses: &Vec<String>, cascade: bool) -> Result<(), error::Error>{
-    todo!()
+pub fn reject_courses(courses: &Vec<String>, cascade: bool) -> Result<(), error::Error> {
+    let mut aproved = load_aproved()?;
+    if cascade {
+        todo!()
+    } else {
+        for course in courses {
+            if !aproved.contains(&course) {
+                return Err(error::Error::CourseNotApproved(course.to_string()));
+            }
+        }
+        // remove the courses from the aproved list
+        aproved = aproved
+            .into_iter()
+            .filter(|c| !courses.contains(&c))
+            .collect();
+    }
+    // save the new aproved.json
+    save_aproved(&aproved)?;
+    Ok(())
+}
+
+fn load_aproved() -> Result<Vec<String>, error::Error> {
+    let path = courses_files_path()?.join("approved.json");
+    let json = std::fs::read_to_string(&path)
+        .map_err(|e| error::Error::CouldNotOpenFile(path.clone(), e))?;
+    let approved: Vec<String> =
+        serde_json::from_str(&json).map_err(|e| error::Error::JsonDeserialization(e))?;
+    Ok(approved)
+}
+
+fn save_aproved(courses: &Vec<String>) -> Result<(), error::Error> {
+    let path = courses_files_path()?.join("approved.json");
+    let json = serde_json::to_string(&courses).map_err(|e| error::Error::JsonSerialization(e))?;
+    std::fs::write(&path, json).map_err(|e| error::Error::CouldNotCreateFile(path, e))?;
+    Ok(())
 }

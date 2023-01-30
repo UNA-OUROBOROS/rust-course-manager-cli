@@ -11,4 +11,5 @@ pub enum Error {
     JsonDeserialization(serde_json::Error),
     CourseAlreadyApproved(String),
     CourseDoesNotExist(String),
+    CourseNotApproved(String),
 }

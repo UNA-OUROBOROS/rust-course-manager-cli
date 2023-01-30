@@ -82,8 +82,9 @@ pub(crate) struct RejectCourses {
         long = "cascade",
         help = "reject in cascade the courses that depend on the rejected courses",
         required = false,
-        default_value = "false"
+        default_value = "true"
     )]
+    #[clap(action = clap::ArgAction::Set)]
     pub(crate) cascade: bool,
 }
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
