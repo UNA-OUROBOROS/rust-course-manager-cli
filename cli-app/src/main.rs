@@ -1,11 +1,13 @@
 mod cli;
 mod util;
 use clap::{CommandFactory, Parser};
-use course_manager::{approve_courses, reject_courses, requires_init};
+use course_manager::{approve_courses, courses::to_str, reject_courses, requires_init};
 
 use cli::{to_course_status, Cli, Commands, PrintFormat};
+use tabled::Table;
+use util::CourseTable;
 
-use crate::cli::Format;
+use crate::cli::{Format, to_table_style};
 
 fn main() {
     let cli = Cli::parse();
@@ -52,38 +54,26 @@ fn main() {
                     let courses = course_manager::get_courses(to_course_status(status));
                     match courses {
                         Ok(courses) => match list_courses.print_format {
-                            PrintFormat::Markdown => {
-                                println!("| Code | Name | Status |");
-                                println!("| ---- | ---- | ------ |");
-                                for course in courses {
-                                    println!(
-                                        "| {} | {} | {} |",
-                                        course.code,
-                                        course.name,
-                                        match course.status {
-                                            Some(status) => status.to_string(),
-                                            None => "N/A".to_string(),
-                                        }
-                                    );
-                                }
-                            }
                             PrintFormat::Json => {
                                 println!("{}", serde_json::to_string_pretty(&courses).unwrap());
                             }
                             PrintFormat::Table => {
-                                let mut table = prettytable::Table::new();
-                                table.add_row(prettytable::row!["Code", "Name", "Status"]);
-                                for course in courses {
-                                    table.add_row(prettytable::row![
-                                        course.code,
-                                        course.name,
-                                        match course.status {
-                                            Some(status) => status.to_string(),
-                                            None => "N/A".to_string(),
-                                        }
-                                    ]);
-                                }
-                                table.printstd();
+                                let courses: Vec<CourseTable> = courses
+                                    .iter()
+                                    .map(|course| CourseTable {
+                                        code: &course.code,
+                                        name: &course.name,
+                                        status: match course.status {
+                                            // fmt::format
+                                            Some(status) => to_str(status),
+                                            None => "N/A",
+                                        },
+                                    })
+                                    .collect();
+                                let mut table = Table::new(&courses);
+                                let table = to_table_style(&mut table, list_courses.table_format);
+                                
+                                println!("{}", table);
                             }
                             PrintFormat::Raw => {
                                 println!("{:#?}", courses);

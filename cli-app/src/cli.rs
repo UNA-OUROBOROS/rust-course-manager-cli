@@ -1,4 +1,5 @@
 use clap::{command, Args, Parser, Subcommand, ValueEnum};
+use tabled::{Style, Table};
 
 #[derive(Parser)]
 #[command(
@@ -54,6 +55,16 @@ pub(crate) struct ListCourses {
         required = false
     )]
     pub(crate) print_format: PrintFormat,
+    // table format, used only if the format is table
+    #[arg(
+        short = 't',
+        long = "table-format",
+        help = "Format of the table, only used if the format is table",
+        default_value = "pretty",
+        required = false,
+        default_value = "rounded"
+    )]
+    pub(crate) table_format: TableStyle,
 }
 
 #[derive(Args)]
@@ -83,11 +94,26 @@ pub(crate) enum Format {
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 pub(crate) enum PrintFormat {
-    Markdown,
     Table,
     Json,
     Raw,
 }
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+pub(crate) enum TableStyle {
+    Ascii,
+    Modern,
+    Sharp,
+    Rounded,
+    Extended,
+    Psql,
+    Markdown,
+    Rst,
+    Dots,
+    AsciiRounded,
+    Blank,
+    Empty,
+}
+
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 pub(crate) enum CourseStatus {
     All,
@@ -104,5 +130,22 @@ pub(crate) fn to_course_status(
         CourseStatus::Blocked => Some(course_manager::courses::CourseStatus::Blocked),
         CourseStatus::Completed => Some(course_manager::courses::CourseStatus::Completed),
         CourseStatus::Available => Some(course_manager::courses::CourseStatus::Available),
+    }
+}
+
+pub(crate) fn to_table_style(table: &mut Table, style: TableStyle) -> &mut Table {
+    match style {
+        TableStyle::Ascii => table.with(Style::ascii()),
+        TableStyle::Modern => table.with(Style::modern()),
+        TableStyle::Sharp => table.with(Style::sharp()),
+        TableStyle::Rounded => table.with(Style::rounded()),
+        TableStyle::Extended => table.with(Style::extended()),
+        TableStyle::Psql => table.with(Style::psql()),
+        TableStyle::Markdown => table.with(Style::markdown()),
+        TableStyle::Rst => table.with(Style::re_structured_text()),
+        TableStyle::Dots => table.with(Style::dots()),
+        TableStyle::AsciiRounded => table.with(Style::ascii_rounded()),
+        TableStyle::Blank => table.with(Style::blank()),
+        TableStyle::Empty => table.with(Style::empty()),
     }
 }

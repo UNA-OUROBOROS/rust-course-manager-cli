@@ -20,13 +20,17 @@ pub enum CourseStatus {
     Available,
 }
 
+pub fn to_str(status: CourseStatus) -> &'static str {
+    match status {
+        CourseStatus::Blocked => "Blocked",
+        CourseStatus::Completed => "Completed",
+        CourseStatus::Available => "Available",
+    }
+}
+
 // display for course status
 impl std::fmt::Display for CourseStatus {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            CourseStatus::Blocked => write!(f, "Blocked"),
-            CourseStatus::Completed => write!(f, "Completed"),
-            CourseStatus::Available => write!(f, "Available"),
-        }
+        to_str(*self).fmt(f)
     }
 }
