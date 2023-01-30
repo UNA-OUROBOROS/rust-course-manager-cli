@@ -17,6 +17,7 @@ fn main() {
             match init_courses.uri.starts_with("https://") {
                 true => {
                     println!("HTTPS is not supported yet");
+                    todo!()
                 }
                 false => {
                     let courses = match init_courses.format {
