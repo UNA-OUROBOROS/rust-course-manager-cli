@@ -83,6 +83,7 @@ pub(crate) enum Format {
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 pub(crate) enum PrintFormat {
+    Markdown,
     Table,
     Json,
     Raw,

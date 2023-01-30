@@ -52,6 +52,21 @@ fn main() {
                     let courses = course_manager::get_courses(to_course_status(status));
                     match courses {
                         Ok(courses) => match list_courses.print_format {
+                            PrintFormat::Markdown => {
+                                println!("| Code | Name | Status |");
+                                println!("| ---- | ---- | ------ |");
+                                for course in courses {
+                                    println!(
+                                        "| {} | {} | {} |",
+                                        course.code,
+                                        course.name,
+                                        match course.status {
+                                            Some(status) => status.to_string(),
+                                            None => "N/A".to_string(),
+                                        }
+                                    );
+                                }
+                            }
                             PrintFormat::Json => {
                                 println!("{}", serde_json::to_string_pretty(&courses).unwrap());
                             }
