@@ -29,7 +29,16 @@ pub(crate) enum Commands {
 pub(crate) struct InitCourses {
     #[arg(
         required = true,
-        help = "URI of the source, can be a local file or a https url"
+        help = "URI of the source, can be a local file or a https url, for more info use --help",
+        long_help = indoc::indoc!{"
+        URI of the source, can be a local file or a https url.
+        for example you use the following url to get the courses from the course manager repo:
+        https://raw.githubusercontent.com/UNA-OUROBOROS/course-manager-data/master/ING-SIST-UNA-V1.json
+        like this:
+        course-manager init-courses https://raw.githubusercontent.com/UNA-OUROBOROS/course-manager-data/master/ING-SIST-UNA-V1.json
+        or you can use a local file like this:
+        course-manager init-courses ./ING-SIST-UNA-V1.json
+        "}
     )]
     pub(crate) uri: String,
 }
