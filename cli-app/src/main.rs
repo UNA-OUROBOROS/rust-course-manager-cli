@@ -95,7 +95,7 @@ fn main() {
                 if requires_init {
                     println!("please init the courses list first");
                 }
-                match approve_courses(&list_courses.courses) {
+                match approve_courses(&list_courses.courses, list_courses.cascade) {
                     Ok(_) => {
                         println!("courses approved successfully");
                     }

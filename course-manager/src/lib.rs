@@ -103,18 +103,22 @@ pub fn get_courses_from_json(path: String) -> Result<Vec<Course>, error::Error> 
     return Ok(courses);
 }
 
-pub fn approve_courses(courses: &Vec<String>) -> Result<(), error::Error> {
+pub fn approve_courses(courses: &Vec<String>, cascade: bool) -> Result<(), error::Error> {
     let mut approved: Vec<String> = load_aproved()?;
-    for course in courses {
-        if approved.contains(&course) {
-            return Err(error::Error::CourseAlreadyApproved(course.to_string()));
+    if (cascade) {
+        todo!()
+    } else {
+        for course in courses {
+            if approved.contains(&course) {
+                return Err(error::Error::CourseAlreadyApproved(course.to_string()));
+            }
+            // check that the course exists
+            let courses = get_courses(None)?;
+            if !courses.iter().any(|c| &c.code == course) {
+                return Err(error::Error::CourseDoesNotExist(course.to_string()));
+            }
+            approved.push(course.to_string());
         }
-        // check that the course exists
-        let courses = get_courses(None)?;
-        if !courses.iter().any(|c| &c.code == course) {
-            return Err(error::Error::CourseDoesNotExist(course.to_string()));
-        }
-        approved.push(course.to_string());
     }
     save_aproved(&approved)?;
     Ok(())

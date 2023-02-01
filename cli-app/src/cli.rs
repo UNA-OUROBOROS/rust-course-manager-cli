@@ -71,6 +71,15 @@ pub(crate) struct ListCourses {
 pub(crate) struct AproveCourses {
     #[arg(help = "Courses to aprove", required = true)]
     pub(crate) courses: Vec<String>,
+    #[arg(
+        short = 'c',
+        long = "cascade",
+        help = "accept courses in cascade, so any course that is required gets accepted",
+        required = false,
+        default_value = "true"
+    )]
+    #[clap(action = clap::ArgAction::Set)]
+    pub(crate) cascade: bool,
 }
 
 #[derive(Args)]
