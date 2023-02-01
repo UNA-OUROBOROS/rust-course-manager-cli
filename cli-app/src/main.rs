@@ -4,6 +4,7 @@ use clap::{CommandFactory, Parser};
 use course_manager::{approve_courses, courses::to_str, reject_courses, requires_init};
 
 use cli::{to_course_status, Cli, Commands, PrintFormat};
+use spinoff::{spinners, Spinner};
 use tabled::Table;
 use util::CourseTable;
 
@@ -16,23 +17,60 @@ fn main() {
             // check if begins with https
             match init_courses.uri.starts_with("https://") {
                 true => {
-                    println!("HTTPS is not supported yet");
-                    todo!()
+                    // show a downloading spinner
+                    let sp = Spinner::new(spinners::Dots12, "Downloading courses list", None);
+                    // download the file
+                    match reqwest::blocking::get(&init_courses.uri) {
+                        Ok(response) => {
+                            match response.text() {
+                                Ok(text) => {
+                                    let courses = course_manager::get_courses_from_json(text);
+                                    match courses {
+                                        Ok(courses) => match course_manager::initialize_courses(courses) {
+                                            Ok(_) => {
+                                                sp.success("courses initialized successfully");
+                                            }
+                                            Err(e) => {
+                                                sp.fail(&format!("could not initialize courses: {:#?}", e));
+                                            }
+                                        },
+                                        Err(e) => {
+                                            sp.fail(&format!("could not parse courses: {:#?}", e));
+                                        }
+                                    }
+                                }
+                                Err(e) => {
+                                    sp.fail(&format!("could not read file: {}", e));
+                                }
+                            }
+                            
+                        }
+                        Err(e) => {
+                            sp.fail(&format!("could not download file: {}", e));
+                        }
+                    }
                 }
                 false => {
                     let path = init_courses.uri.clone();
-                    let courses = course_manager::get_courses_from_json(path);
-                    match courses {
-                        Ok(courses) => match course_manager::initialize_courses(courses) {
-                            Ok(_) => {
-                                println!("courses initialized successfully");
+                    match std::fs::read_to_string(&path) {
+                        Ok(json) => {
+                            let courses = course_manager::get_courses_from_json(json);
+                            match courses {
+                                Ok(courses) => match course_manager::initialize_courses(courses) {
+                                    Ok(_) => {
+                                        println!("courses initialized successfully");
+                                    }
+                                    Err(e) => {
+                                        println!("{:#?}", e);
+                                    }
+                                },
+                                Err(e) => {
+                                    println!("{:#?}", e);
+                                }
                             }
-                            Err(e) => {
-                                println!("{:#?}", e);
-                            }
-                        },
+                        }
                         Err(e) => {
-                            println!("{:#?}", e);
+                            println!("could not open file: {}", e);
                         }
                     }
                 }

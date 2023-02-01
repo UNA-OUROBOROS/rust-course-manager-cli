@@ -96,9 +96,7 @@ fn requirements_met(course: &Course, approved: &Vec<String>) -> bool {
     return true;
 }
 
-pub fn get_courses_from_json(path: String) -> Result<Vec<Course>, error::Error> {
-    let json = std::fs::read_to_string(&path)
-        .map_err(|e| error::Error::CouldNotCreateFile(path.into(), e))?;
+pub fn get_courses_from_json(json: String) -> Result<Vec<Course>, error::Error> {
     let courses = serde_json::from_str(&json).map_err(|e| error::Error::JsonDeserialization(e))?;
     return Ok(courses);
 }
