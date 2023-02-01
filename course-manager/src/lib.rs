@@ -105,7 +105,7 @@ pub fn get_courses_from_json(path: String) -> Result<Vec<Course>, error::Error> 
 
 pub fn approve_courses(courses: &Vec<String>, cascade: bool) -> Result<(), error::Error> {
     let mut approved: Vec<String> = load_aproved()?;
-    if (cascade) {
+    if cascade {
         todo!()
     } else {
         for course in courses {

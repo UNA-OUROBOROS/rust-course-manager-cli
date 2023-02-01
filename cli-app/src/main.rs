@@ -7,7 +7,7 @@ use cli::{to_course_status, Cli, Commands, PrintFormat};
 use tabled::Table;
 use util::CourseTable;
 
-use crate::cli::{Format, to_table_style};
+use crate::cli::to_table_style;
 
 fn main() {
     let cli = Cli::parse();
@@ -20,16 +20,8 @@ fn main() {
                     todo!()
                 }
                 false => {
-                    let courses = match init_courses.format {
-                        Format::Csv => {
-                            print!("CSV is not supported yet");
-                            todo!()
-                        }
-                        Format::Json => {
-                            let path = init_courses.uri.clone();
-                            course_manager::get_courses_from_json(path)
-                        }
-                    };
+                    let path = init_courses.uri.clone();
+                    let courses = course_manager::get_courses_from_json(path);
                     match courses {
                         Ok(courses) => match course_manager::initialize_courses(courses) {
                             Ok(_) => {
@@ -73,7 +65,7 @@ fn main() {
                                     .collect();
                                 let mut table = Table::new(&courses);
                                 let table = to_table_style(&mut table, list_courses.table_format);
-                                
+
                                 println!("{}", table);
                             }
                             PrintFormat::Raw => {

@@ -27,8 +27,6 @@ pub(crate) enum Commands {
 
 #[derive(Args)]
 pub(crate) struct InitCourses {
-    #[arg(required = true, help = "Format of the source")]
-    pub(crate) format: Format,
     #[arg(
         required = true,
         help = "URI of the source, can be a local file or a https url"
@@ -95,11 +93,6 @@ pub(crate) struct RejectCourses {
     )]
     #[clap(action = clap::ArgAction::Set)]
     pub(crate) cascade: bool,
-}
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
-pub(crate) enum Format {
-    Csv,
-    Json,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
