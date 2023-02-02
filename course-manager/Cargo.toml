@@ -1,6 +1,6 @@
 [package]
 name = "course-manager"
-version = "0.0.1"
+version = "0.0.0"
 edition = "2021"
 description = "Library that contains several utilities for course-manager"
 license = "BSD-3-Clause"
