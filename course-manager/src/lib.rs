@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use courses::{Course, CourseStatus};
 
 pub mod courses;
@@ -49,7 +51,7 @@ pub fn get_courses(status: Option<CourseStatus>) -> Result<Vec<Course>, error::E
     let path = courses_files_path()?.join("courses.json");
     let json =
         std::fs::read_to_string(&path).map_err(|e| error::Error::CouldNotOpenFile(path, e))?;
-    let courses: Vec<Course> =
+    let mut courses: Vec<Course> =
         serde_json::from_str(&json).map_err(|e| error::Error::JsonDeserialization(e))?;
     match status {
         Some(status) => {
@@ -59,8 +61,9 @@ pub fn get_courses(status: Option<CourseStatus>) -> Result<Vec<Course>, error::E
             match status {
                 CourseStatus::Completed => {
                     // fetch all courses that are in approved.json
-                    for course in courses {
+                    for mut course in courses {
                         if approved.contains(&course.code) {
+                            course.status = Some(status);
                             filtered_courses.push(course);
                         }
                     }
@@ -68,11 +71,12 @@ pub fn get_courses(status: Option<CourseStatus>) -> Result<Vec<Course>, error::E
                 CourseStatus::Blocked | CourseStatus::Available => {
                     let requires_aproved = status == CourseStatus::Available;
                     // fetch all courses that are not in approved.json
-                    for course in courses {
+                    for mut course in courses {
                         if !approved.contains(&course.code) {
                             // and if that the status is the same as the filter
                             let requires_met = requirements_met(&course, &approved);
                             if requires_aproved == requires_met {
+                                course.status = Some(status);
                                 filtered_courses.push(course);
                             }
                         }
@@ -82,6 +86,18 @@ pub fn get_courses(status: Option<CourseStatus>) -> Result<Vec<Course>, error::E
             Ok(filtered_courses)
         }
         None => {
+            let approved: Vec<String> = load_aproved()?;
+            // set the status of each course
+            for course in &mut courses {
+                let requires_met = requirements_met(&course, &approved);
+                if approved.contains(&course.code) {
+                    course.status = Some(CourseStatus::Completed);
+                } else if requires_met {
+                    course.status = Some(CourseStatus::Available);
+                } else {
+                    course.status = Some(CourseStatus::Blocked);
+                }
+            }
             return Ok(courses);
         }
     }
@@ -101,10 +117,59 @@ pub fn get_courses_from_json(json: String) -> Result<Vec<Course>, error::Error> 
     return Ok(courses);
 }
 
+// recursively get all the courses that are required by the given course
+// along with the courses that are required by those courses and so on
+fn get_required_courses(course: &Course, courses: &Vec<Course>) -> Vec<String> {
+    let mut required_courses: Vec<String> = Vec::new();
+    for requirement in &course.requirements {
+        for c in courses {
+            if c.code == *requirement {
+                required_courses.push(c.code.clone());
+                required_courses.append(&mut get_required_courses(c, courses));
+            }
+        }
+    }
+    return required_courses;
+}
+
+/// recursively get all courses that require the given course
+/// along with the courses that require those courses and so on
+/// this is used to get all courses that will be affected by rejecting a course
+fn get_cascade_courses(course: &str, courses: &Vec<Course>) -> Vec<String> {
+    let mut cascade_courses: Vec<String> = Vec::new();
+    for c in courses {
+        if c.requirements.contains(&course.to_string()) {
+            cascade_courses.push(c.code.clone());
+            cascade_courses.append(&mut get_cascade_courses(&c.code, courses));
+        }
+    }
+    return cascade_courses;
+}
+
 pub fn approve_courses(courses: &Vec<String>, cascade: bool) -> Result<(), error::Error> {
     let mut approved: Vec<String> = load_aproved()?;
     if cascade {
-        todo!()
+        let courses_list = get_courses(None)?;
+        // set of courses that will be approved
+        let mut accepted_courses: HashSet<String> = HashSet::new();
+        for course_code in courses {
+            // get the course by its code
+            let course = courses_list
+                .iter()
+                .find(|c| &c.code == course_code)
+                .ok_or(error::Error::CourseDoesNotExist(course_code.to_string()))?;
+            accepted_courses.insert(course.code.clone());
+            let required_courses = get_required_courses(course, &courses_list);            
+            // add all the courses that are required by the given course
+            // but not already in the approved list
+            for required_course in required_courses {
+                if !approved.contains(&required_course) {
+                    accepted_courses.insert(required_course);
+                }
+            }
+        }
+        // call itself with the set of courses that will be approved
+        return approve_courses(&accepted_courses.into_iter().collect(), false);
     } else {
         for course in courses {
             if approved.contains(&course) {
@@ -122,13 +187,26 @@ pub fn approve_courses(courses: &Vec<String>, cascade: bool) -> Result<(), error
     Ok(())
 }
 
-///
 /// Reject a series of courses
 /// if cascade is true, all courses that require the rejected courses will also be rejected
 pub fn reject_courses(courses: &Vec<String>, cascade: bool) -> Result<(), error::Error> {
     let mut aproved = load_aproved()?;
     if cascade {
-        todo!()
+        let courses_list = get_courses(None)?;
+        // set of courses that will be rejected
+        let mut rejected_courses: HashSet<String> = HashSet::new();
+        for course in courses {
+            rejected_courses.insert(course.to_string());
+            // do not reject courses that are not completed
+            let cascade_courses = get_cascade_courses(course, &courses_list);
+            for cascade_course in cascade_courses {
+                if aproved.contains(&cascade_course) {
+                    rejected_courses.insert(cascade_course);
+                }
+            }
+        }
+        // call itself with the new list of courses
+        return reject_courses(&rejected_courses.into_iter().collect(), false);
     } else {
         for course in courses {
             if !aproved.contains(&course) {
