@@ -1,7 +1,10 @@
 [package]
 name = "course-manager"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
+description = "Library that contains several utilities for course-manager"
+license = "BSD-3-Clause"
+repository = "https://github.com/UNA-OUROBOROS/rust-course-manager-cli"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
