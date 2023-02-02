@@ -88,6 +88,15 @@ pub(crate) struct Aprove {
     )]
     #[clap(action = clap::ArgAction::Set)]
     pub(crate) recursive: bool,
+    #[arg(
+        short = 'f',
+        long = "force",
+        help = "force the aproval of the courses, even if they have unaproved requirements",
+        required = false,
+        default_value = "false"
+    )]
+    #[clap(action = clap::ArgAction::Set)]
+    pub(crate) force: bool,
 }
 
 #[derive(Args)]
@@ -103,6 +112,15 @@ pub(crate) struct Reject {
     )]
     #[clap(action = clap::ArgAction::Set)]
     pub(crate) cascade: bool,
+    #[arg(
+        short = 'f',
+        long = "force",
+        help = "force the rejection of the courses, even if they have aproved requirements",
+        required = false,
+        default_value = "false"
+    )]
+    #[clap(action = clap::ArgAction::Set)]
+    pub(crate) force: bool,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]

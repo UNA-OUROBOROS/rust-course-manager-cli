@@ -146,7 +146,7 @@ fn get_cascade_courses(course: &str, courses: &Vec<Course>) -> Vec<String> {
     return cascade_courses;
 }
 
-pub fn approve_courses(courses: &Vec<String>, cascade: bool) -> Result<(), error::Error> {
+pub fn approve_courses(courses: &Vec<String>, cascade: bool, force: bool) -> Result<(), error::Error> {
     let mut approved: Vec<String> = load_aproved()?;
     if cascade {
         let courses_list = get_courses(None)?;
@@ -169,10 +169,10 @@ pub fn approve_courses(courses: &Vec<String>, cascade: bool) -> Result<(), error
             }
         }
         // call itself with the set of courses that will be approved
-        return approve_courses(&accepted_courses.into_iter().collect(), false);
+        return approve_courses(&accepted_courses.into_iter().collect(), false, force);
     } else {
         for course in courses {
-            if approved.contains(&course) {
+            if approved.contains(&course) && !force {
                 return Err(error::Error::CourseAlreadyApproved(course.to_string()));
             }
             // check that the course exists
@@ -189,7 +189,7 @@ pub fn approve_courses(courses: &Vec<String>, cascade: bool) -> Result<(), error
 
 /// Reject a series of courses
 /// if cascade is true, all courses that require the rejected courses will also be rejected
-pub fn reject_courses(courses: &Vec<String>, cascade: bool) -> Result<(), error::Error> {
+pub fn reject_courses(courses: &Vec<String>, cascade: bool, force: bool) -> Result<(), error::Error> {
     let mut aproved = load_aproved()?;
     if cascade {
         let courses_list = get_courses(None)?;
@@ -206,10 +206,10 @@ pub fn reject_courses(courses: &Vec<String>, cascade: bool) -> Result<(), error:
             }
         }
         // call itself with the new list of courses
-        return reject_courses(&rejected_courses.into_iter().collect(), false);
+        return reject_courses(&rejected_courses.into_iter().collect(), false, force);
     } else {
         for course in courses {
-            if !aproved.contains(&course) {
+            if !aproved.contains(&course) && !force {
                 return Err(error::Error::CourseNotApproved(course.to_string()));
             }
         }

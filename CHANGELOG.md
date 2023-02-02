@@ -2,10 +2,14 @@
 
 ## [Unreleased]
 
+## [0.0.2] - 2023-02-01
+
 ### added
 
-- Added the `--recursive` argument to the `init` subcommand
-- Added the `--recursive` argument to the `update` subcommand
+- Added the `--recursive` argument to the `approve` subcommand
+- Added the `--recursive` argument to the `reject` subcommand
+- Added the `--force` argument to the `approve` subcommand
+- Added the `--force` argument to the `reject` subcommand
 
 ### removed
 

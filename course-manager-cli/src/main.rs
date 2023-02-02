@@ -125,7 +125,7 @@ fn main() {
                 if requires_init {
                     println!("please init the courses list first");
                 }
-                match approve_courses(&list_courses.courses, list_courses.recursive) {
+                match approve_courses(&list_courses.courses, list_courses.recursive, list_courses.force) {
                     Ok(_) => {
                         println!("courses approved successfully");
                     }
@@ -143,7 +143,7 @@ fn main() {
                 if requires_init {
                     println!("please init the courses list first");
                 }
-                match reject_courses(&list_courses.courses, list_courses.cascade) {
+                match reject_courses(&list_courses.courses, list_courses.cascade, list_courses.force) {
                     Ok(_) => {
                         println!("courses rejected successfully");
                     }
