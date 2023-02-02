@@ -17,17 +17,17 @@ pub(crate) struct Cli {
 #[derive(Subcommand)]
 pub(crate) enum Commands {
     #[command(about = "Initialize the courses list")]
-    InitCourses(InitCourses),
+    Init(Init),
     #[command(about = "List and filter courses")]
-    ListCourses(ListCourses),
+    List(List),
     #[command(about = "Aprove a series of courses")]
-    AproveCourses(AproveCourses),
+    Aprove(Aprove),
     #[command(about = "Reject a series of courses")]
-    RejectCourses(RejectCourses),
+    Reject(Reject),
 }
 
 #[derive(Args)]
-pub(crate) struct InitCourses {
+pub(crate) struct Init {
     #[arg(
         required = true,
         help = "URI of the source, can be a local file or a https url, for more info use --help",
@@ -45,7 +45,7 @@ pub(crate) struct InitCourses {
 }
 
 #[derive(Args)]
-pub(crate) struct ListCourses {
+pub(crate) struct List {
     #[arg(
         short = 's',
         long = "status",
@@ -76,7 +76,7 @@ pub(crate) struct ListCourses {
 }
 
 #[derive(Args)]
-pub(crate) struct AproveCourses {
+pub(crate) struct Aprove {
     #[arg(help = "Courses to aprove", required = true)]
     pub(crate) courses: Vec<String>,
     #[arg(
@@ -91,7 +91,7 @@ pub(crate) struct AproveCourses {
 }
 
 #[derive(Args)]
-pub(crate) struct RejectCourses {
+pub(crate) struct Reject {
     #[arg(help = "Courses to reject", required = true)]
     pub(crate) courses: Vec<String>,
     #[arg(

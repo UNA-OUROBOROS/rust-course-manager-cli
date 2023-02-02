@@ -13,7 +13,7 @@ use crate::cli::to_table_style;
 fn main() {
     let cli = Cli::parse();
     match &cli.command {
-        Some(Commands::InitCourses(init_courses)) => {
+        Some(Commands::Init(init_courses)) => {
             // check if begins with https
             match init_courses.uri.starts_with("https://") {
                 true => {
@@ -76,7 +76,7 @@ fn main() {
                 }
             }
         }
-        Some(Commands::ListCourses(list_courses)) => match requires_init() {
+        Some(Commands::List(list_courses)) => match requires_init() {
             Ok(requires_init) => {
                 if requires_init {
                     println!("please init the courses list first");
@@ -120,7 +120,7 @@ fn main() {
                 println!("{:#?}", e);
             }
         },
-        Some(Commands::AproveCourses(list_courses)) => match requires_init() {
+        Some(Commands::Aprove(list_courses)) => match requires_init() {
             Ok(requires_init) => {
                 if requires_init {
                     println!("please init the courses list first");
@@ -138,7 +138,7 @@ fn main() {
                 println!("{:#?}", e);
             }
         },
-        Some(Commands::RejectCourses(list_courses)) => match requires_init() {
+        Some(Commands::Reject(list_courses)) => match requires_init() {
             Ok(requires_init) => {
                 if requires_init {
                     println!("please init the courses list first");
