@@ -80,14 +80,14 @@ pub(crate) struct Aprove {
     #[arg(help = "Courses to aprove", required = true)]
     pub(crate) courses: Vec<String>,
     #[arg(
-        short = 'c',
-        long = "cascade",
-        help = "accept courses in cascade, so any course that is required gets accepted",
+        short = 'r',	
+        long = "recursive",
+        help = "accept courses recursively, so any course that is required by the aproved courses will be aproved too",
         required = false,
-        default_value = "true"
+        default_value = "false"
     )]
     #[clap(action = clap::ArgAction::Set)]
-    pub(crate) cascade: bool,
+    pub(crate) recursive: bool,
 }
 
 #[derive(Args)]
@@ -95,9 +95,9 @@ pub(crate) struct Reject {
     #[arg(help = "Courses to reject", required = true)]
     pub(crate) courses: Vec<String>,
     #[arg(
-        short = 'c',
-        long = "cascade",
-        help = "reject in cascade the courses that depend on the rejected courses",
+        short = 'r',
+        long = "recursive",
+        help = "reject courses recursively, so any course that requires the rejected courses will be rejected too",
         required = false,
         default_value = "true"
     )]
