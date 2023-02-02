@@ -1,7 +1,7 @@
 [workspace]
 
 members = [
-    "cli-app",
+    "course-manager-cli",
     "course-manager"
 ]
 
