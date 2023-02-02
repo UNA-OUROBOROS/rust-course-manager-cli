@@ -10,13 +10,36 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
+  platforms:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+    build:
+      - uses: actions/checkout@v3
+      - name: Run tests
+        run: cargo test --verbose
+      - name: compile release
+        run: cargo build --release
+      - name: upload release
+        uses: actions/upload-artifact@v2
+        with:
+          name: release
+          path: target/release
+    release:
+      - uses: actions/checkout@v3
+      - name: download release
+        uses: actions/download-artifact@v2
+        with:
+          name: release
+      - name: create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            target/release/*
+          draft: true
+          prerelease: true
+          tag_name: ${{ github.sha }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
