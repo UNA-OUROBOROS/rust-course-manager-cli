@@ -4,7 +4,8 @@ use tabled::{Style, Table};
 #[derive(Parser)]
 #[command(
     name = "Course Manager",
-    version = "0.1",
+    author = "Ouroboros",
+    version,
     about = "CLI app for managing courses"
 )]
 #[command(propagate_version = true)]
