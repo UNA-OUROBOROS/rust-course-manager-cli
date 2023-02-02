@@ -10,13 +10,12 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  platforms:
+  build:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    build:
       - uses: actions/checkout@v3
       - name: Run tests
         run: cargo test --verbose
@@ -25,21 +24,30 @@ jobs:
       - name: upload release
         uses: actions/upload-artifact@v2
         with:
-          name: release
-          path: target/release
-    release:
+        # make a release for each OS
+          name: release-${{ matrix.os }}
+          path: target/release/${{ matrix.os }}
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
       - uses: actions/checkout@v3
       - name: download release
         uses: actions/download-artifact@v2
         with:
-          name: release
+          name: release-${{ matrix.os }}
       - name: create release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            target/release/*
+            target/release/${{ matrix.os }}
           draft: true
           prerelease: true
           tag_name: ${{ github.sha }}
+          name: ${{ github.sha }}
+          body: |
+            ${{ github.sha }}
           token: ${{ secrets.GITHUB_TOKEN }}
-      
