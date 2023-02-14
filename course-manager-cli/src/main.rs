@@ -3,7 +3,7 @@ mod util;
 use clap::{CommandFactory, Parser};
 use course_manager::{approve_courses, courses::to_str, reject_courses, requires_init};
 
-use cli::{to_course_status, Cli, Commands, PrintFormat};
+use cli::{to_course_statuses, Cli, Commands, PrintFormat};
 use spinoff::{spinners, Spinner};
 use tabled::Table;
 use util::CourseTable;
@@ -21,30 +21,32 @@ fn main() {
                     let sp = Spinner::new(spinners::Dots12, "Downloading courses list", None);
                     // download the file
                     match reqwest::blocking::get(&init_courses.uri) {
-                        Ok(response) => {
-                            match response.text() {
-                                Ok(text) => {
-                                    let courses = course_manager::get_courses_from_json(text);
-                                    match courses {
-                                        Ok(courses) => match course_manager::initialize_courses(courses) {
+                        Ok(response) => match response.text() {
+                            Ok(text) => {
+                                let courses = course_manager::get_courses_from_json(text);
+                                match courses {
+                                    Ok(courses) => {
+                                        match course_manager::initialize_courses(courses) {
                                             Ok(_) => {
                                                 sp.success("courses initialized successfully");
                                             }
                                             Err(e) => {
-                                                sp.fail(&format!("could not initialize courses: {:#?}", e));
+                                                sp.fail(&format!(
+                                                    "could not initialize courses: {:#?}",
+                                                    e
+                                                ));
                                             }
-                                        },
-                                        Err(e) => {
-                                            sp.fail(&format!("could not parse courses: {:#?}", e));
                                         }
                                     }
-                                }
-                                Err(e) => {
-                                    sp.fail(&format!("could not read file: {}", e));
+                                    Err(e) => {
+                                        sp.fail(&format!("could not parse courses: {:#?}", e));
+                                    }
                                 }
                             }
-                            
-                        }
+                            Err(e) => {
+                                sp.fail(&format!("could not read file: {}", e));
+                            }
+                        },
                         Err(e) => {
                             sp.fail(&format!("could not download file: {}", e));
                         }
@@ -81,8 +83,8 @@ fn main() {
                 if requires_init {
                     println!("please init the courses list first");
                 } else {
-                    let status = list_courses.status;
-                    let courses = course_manager::get_courses(to_course_status(status));
+                    let status = &list_courses.status;
+                    let courses = course_manager::get_courses(to_course_statuses(status));
                     match courses {
                         Ok(courses) => match list_courses.print_format {
                             PrintFormat::Json => {
@@ -125,7 +127,11 @@ fn main() {
                 if requires_init {
                     println!("please init the courses list first");
                 }
-                match approve_courses(&list_courses.courses, list_courses.recursive, list_courses.force) {
+                match approve_courses(
+                    &list_courses.courses,
+                    list_courses.recursive,
+                    list_courses.force,
+                ) {
                     Ok(_) => {
                         println!("courses approved successfully");
                     }
@@ -143,7 +149,11 @@ fn main() {
                 if requires_init {
                     println!("please init the courses list first");
                 }
-                match reject_courses(&list_courses.courses, list_courses.cascade, list_courses.force) {
+                match reject_courses(
+                    &list_courses.courses,
+                    list_courses.cascade,
+                    list_courses.force,
+                ) {
                     Ok(_) => {
                         println!("courses rejected successfully");
                     }

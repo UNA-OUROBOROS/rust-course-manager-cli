@@ -46,14 +46,19 @@ pub(crate) struct Init {
 
 #[derive(Args)]
 pub(crate) struct List {
+    // list of possible courses statuses default None
     #[arg(
         short = 's',
         long = "status",
         help = "Status of the courses to list",
-        default_value = "all",
+        long_help = indoc::indoc!{"
+        Status of the courses to list, can be chained, for example:
+        course-manager list -s aproved -s rejected
+        will list all the courses that are aproved or rejected
+        "},
         required = false
     )]
-    pub(crate) status: CourseStatus,
+    pub(crate) status: Option<Vec<CourseStatus>>,
     // print format, by default table
     #[arg(
         short = 'f',
@@ -80,7 +85,7 @@ pub(crate) struct Aprove {
     #[arg(help = "Courses to aprove", required = true)]
     pub(crate) courses: Vec<String>,
     #[arg(
-        short = 'r',	
+        short = 'r',
         long = "recursive",
         help = "accept courses recursively, so any course that is required by the aproved courses will be aproved too",
         required = false,
@@ -153,14 +158,29 @@ pub(crate) enum CourseStatus {
     Available,
 }
 
-pub(crate) fn to_course_status(
-    status: CourseStatus,
-) -> Option<course_manager::courses::CourseStatus> {
+pub(crate) fn to_course_statuses(
+    status: &Option<Vec<CourseStatus>>,
+) -> Option<Vec<course_manager::courses::CourseStatus>> {
     match status {
-        CourseStatus::All => None,
-        CourseStatus::Blocked => Some(course_manager::courses::CourseStatus::Blocked),
-        CourseStatus::Completed => Some(course_manager::courses::CourseStatus::Completed),
-        CourseStatus::Available => Some(course_manager::courses::CourseStatus::Available),
+        Some(status) => {
+            let mut course_statuses: Vec<course_manager::courses::CourseStatus> = Vec::new();
+            for s in status {
+                match s {
+                    CourseStatus::All => return None,
+                    CourseStatus::Blocked => {
+                        course_statuses.push(course_manager::courses::CourseStatus::Blocked)
+                    }
+                    CourseStatus::Completed => {
+                        course_statuses.push(course_manager::courses::CourseStatus::Completed)
+                    }
+                    CourseStatus::Available => {
+                        course_statuses.push(course_manager::courses::CourseStatus::Available)
+                    }
+                }
+            }
+            Some(course_statuses)
+        }
+        None => None,
     }
 }
 
