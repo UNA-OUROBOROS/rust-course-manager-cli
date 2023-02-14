@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- changed the executable name from `course-manager-cli` to `course-manager`
+
 ## [0.0.2] - 2023-02-01
 
 ### added
