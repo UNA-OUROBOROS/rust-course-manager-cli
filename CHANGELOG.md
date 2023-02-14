@@ -2,8 +2,18 @@
 
 ## [Unreleased]
 
+## [0.0.3] - 2023-02-13
+
+### changed
+
 - changed the executable name from `course-manager-cli` to `course-manager`
+
+### added
+
 - added the capacity to list multiple filters in the `list` subcommand
+
+### fixed
+
 - fixed a bug where `aprove <course>` would not validate if the course had the requirments met
 
 ## [0.0.2] - 2023-02-01
