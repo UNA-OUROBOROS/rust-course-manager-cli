@@ -162,7 +162,11 @@ fn get_cascade_courses(course: &str, courses: &Vec<Course>) -> Vec<String> {
     return cascade_courses;
 }
 
-pub fn approve_courses(courses: &Vec<String>, cascade: bool, force: bool) -> Result<(), error::Error> {
+pub fn approve_courses(
+    courses: &Vec<String>,
+    cascade: bool,
+    force: bool,
+) -> Result<(), error::Error> {
     let mut approved: Vec<String> = load_aproved()?;
     if cascade {
         let courses_list = get_courses(None)?;
@@ -175,7 +179,7 @@ pub fn approve_courses(courses: &Vec<String>, cascade: bool, force: bool) -> Res
                 .find(|c| &c.code == course_code)
                 .ok_or(error::Error::CourseDoesNotExist(course_code.to_string()))?;
             accepted_courses.insert(course.code.clone());
-            let required_courses = get_required_courses(course, &courses_list);            
+            let required_courses = get_required_courses(course, &courses_list);
             // add all the courses that are required by the given course
             // but not already in the approved list
             for required_course in required_courses {
@@ -193,10 +197,18 @@ pub fn approve_courses(courses: &Vec<String>, cascade: bool, force: bool) -> Res
             }
             // check that the course exists
             let courses = get_courses(None)?;
-            if !courses.iter().any(|c| &c.code == course) {
-                return Err(error::Error::CourseDoesNotExist(course.to_string()));
+            let course = courses
+                .iter()
+                .find(|c| &c.code == course)
+                .ok_or(error::Error::CourseDoesNotExist(course.to_string()))?;
+            // check that the requirements are met unless force is true
+            if !force {
+                let requirements_met = requirements_met(&course, &approved);
+                if !requirements_met {
+                    return Err(error::Error::CourseRequirementsNotMet(course.code.clone()));
+                }
             }
-            approved.push(course.to_string());
+            approved.push(course.code.clone());
         }
     }
     save_aproved(&approved)?;
@@ -205,7 +217,11 @@ pub fn approve_courses(courses: &Vec<String>, cascade: bool, force: bool) -> Res
 
 /// Reject a series of courses
 /// if cascade is true, all courses that require the rejected courses will also be rejected
-pub fn reject_courses(courses: &Vec<String>, cascade: bool, force: bool) -> Result<(), error::Error> {
+pub fn reject_courses(
+    courses: &Vec<String>,
+    cascade: bool,
+    force: bool,
+) -> Result<(), error::Error> {
     let mut aproved = load_aproved()?;
     if cascade {
         let courses_list = get_courses(None)?;

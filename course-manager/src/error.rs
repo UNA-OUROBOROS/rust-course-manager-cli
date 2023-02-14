@@ -12,4 +12,5 @@ pub enum Error {
     CourseAlreadyApproved(String),
     CourseDoesNotExist(String),
     CourseNotApproved(String),
+    CourseRequirementsNotMet(String),
 }
