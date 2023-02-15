@@ -154,7 +154,7 @@ pub(crate) enum TableStyle {
 pub(crate) enum CourseStatus {
     All,
     Blocked,
-    Completed,
+    Approved,
     Available,
 }
 
@@ -170,8 +170,8 @@ pub(crate) fn to_course_statuses(
                     CourseStatus::Blocked => {
                         course_statuses.push(course_manager::courses::CourseStatus::Blocked)
                     }
-                    CourseStatus::Completed => {
-                        course_statuses.push(course_manager::courses::CourseStatus::Completed)
+                    CourseStatus::Approved => {
+                        course_statuses.push(course_manager::courses::CourseStatus::Approved)
                     }
                     CourseStatus::Available => {
                         course_statuses.push(course_manager::courses::CourseStatus::Available)

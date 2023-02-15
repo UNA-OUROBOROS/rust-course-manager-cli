@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### changed
+
+- the `completed` status has been renamed to `approved`
+
 ## [0.0.3] - 2023-02-13
 
 ### changed

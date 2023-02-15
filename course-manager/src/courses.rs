@@ -16,14 +16,14 @@ pub struct Course {
 #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum CourseStatus {
     Blocked,
-    Completed,
+    Approved,
     Available,
 }
 
 pub fn to_str(status: CourseStatus) -> &'static str {
     match status {
         CourseStatus::Blocked => "Blocked",
-        CourseStatus::Completed => "Completed",
+        CourseStatus::Approved => "Approved",
         CourseStatus::Available => "Available",
     }
 }
