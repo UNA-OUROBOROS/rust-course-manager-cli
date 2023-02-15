@@ -105,8 +105,11 @@ fn main() {
                                     .collect();
                                 let mut table = Table::new(&courses);
                                 let table = to_table_style(&mut table, list_courses.table_format);
-
-                                println!("{}", table);
+                                if table.is_empty() {
+                                    println!("no courses found");
+                                } else {
+                                    println!("{}", table);
+                                }
                             }
                             PrintFormat::Raw => {
                                 println!("{:#?}", courses);

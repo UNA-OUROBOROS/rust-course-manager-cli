@@ -5,6 +5,7 @@
 ### changed
 
 - the `completed` status has been renamed to `approved`
+- the `list` subcommand now shows `no courses found` instead of an empty table
 
 ## [0.0.3] - 2023-02-13
 
