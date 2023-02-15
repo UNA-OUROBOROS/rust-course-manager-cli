@@ -189,7 +189,7 @@ pub fn approve_courses(
             }
         }
         // call itself with the set of courses that will be approved
-        return approve_courses(&accepted_courses.into_iter().collect(), false, force);
+        return approve_courses(&accepted_courses.into_iter().collect(), false, true);
     } else {
         for course in courses {
             if approved.contains(&course) && !force {

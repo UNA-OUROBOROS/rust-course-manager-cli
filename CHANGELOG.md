@@ -7,6 +7,10 @@
 - the `completed` status has been renamed to `approved`
 - the `list` subcommand now shows `no courses found` instead of an empty table
 
+### fixed
+
+- now the courses when approved with the `--recursive` argument will be approved forcefully
+
 ## [0.0.3] - 2023-02-13
 
 ### changed
