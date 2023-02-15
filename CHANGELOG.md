@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### added
+
+- now the `list` subcommand will order by filter when multiple `-s` or `--status` arguments are passed in their respective order
+
 ### changed
 
 - the `completed` status has been renamed to `approved`

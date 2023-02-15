@@ -13,7 +13,7 @@ pub struct Course {
     pub status: Option<CourseStatus>,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Hash)]
 pub enum CourseStatus {
     Blocked,
     Approved,

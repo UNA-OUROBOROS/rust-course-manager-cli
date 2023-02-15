@@ -54,7 +54,7 @@ pub(crate) struct List {
         long_help = indoc::indoc!{"
         Status of the courses to list, can be chained, for example:
         course-manager list -s aproved -s rejected
-        will list all the courses that are aproved or rejected
+        will list all the courses that are aproved or rejected (in the order the filters are applied)
         "},
         required = false
     )]

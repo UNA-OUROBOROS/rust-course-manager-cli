@@ -54,50 +54,44 @@ pub fn get_courses(status: Option<Vec<CourseStatus>>) -> Result<Vec<Course>, err
     let mut courses: Vec<Course> =
         serde_json::from_str(&json).map_err(|e| error::Error::JsonDeserialization(e))?;
     match status {
-        Some(status) => {
+        Some(statuses) => {
             // if all is in the filter, return all courses
             // load approved.json
             let approved: Vec<String> = load_aproved()?;
             let mut filtered_courses: Vec<Course> = Vec::new();
-            // check if CourseStatus::Approved is in the filter
-            if status.contains(&CourseStatus::Approved) {
-                // fetch all courses that are in approved.json
-                for mut course in &mut courses {
-                    if approved.contains(&course.code) {
-                        course.status = Some(CourseStatus::Approved);
-                        filtered_courses.push(course.clone());
-                    }
+            // keep track of filters that have been applied
+            let mut applied_filters: HashSet<CourseStatus> = HashSet::new();
+            // check for each filter if it is in the filter
+            for status in statuses {
+                if applied_filters.contains(&status) {
+                    continue;
                 }
-            }
-            // check if CourseStatus::Blocked is in the filter
-            if status.contains(&CourseStatus::Blocked) {
-                let requires_aproved = false;
-                // fetch all courses that are not in approved.json
-                for mut course in &mut courses {
-                    if !approved.contains(&course.code) {
-                        // and if that the status is the same as the filter
-                        let requires_met = requirements_met(&course, &approved);
-                        if requires_aproved == requires_met {
-                            course.status = Some(CourseStatus::Blocked);
-                            filtered_courses.push(course.clone());
+                match status {
+                    CourseStatus::Blocked | CourseStatus::Available => {
+                        let requires_aproved = status == CourseStatus::Available;
+                        // fetch all courses that are not in approved.json
+                        for mut course in &mut courses {
+                            if !approved.contains(&course.code) {
+                                // and if that the status is the same as the filter
+                                let requires_met = requirements_met(&course, &approved);
+                                if requires_aproved == requires_met {
+                                    course.status = Some(status);
+                                    filtered_courses.push(course.clone());
+                                }
+                            }
+                        }
+                    }
+                    CourseStatus::Approved => {
+                        // fetch all courses that are in approved.json
+                        for mut course in &mut courses {
+                            if approved.contains(&course.code) {
+                                course.status = Some(CourseStatus::Approved);
+                                filtered_courses.push(course.clone());
+                            }
                         }
                     }
                 }
-            }
-            // check if CourseStatus::Available is in the filter
-            if status.contains(&CourseStatus::Available) {
-                let requires_aproved = true;
-                // fetch all courses that are not in approved.json
-                for mut course in &mut courses {
-                    if !approved.contains(&course.code) {
-                        // and if that the status is the same as the filter
-                        let requires_met = requirements_met(&course, &approved);
-                        if requires_aproved == requires_met {
-                            course.status = Some(CourseStatus::Available);
-                            filtered_courses.push(course.clone());
-                        }
-                    }
-                }
+                applied_filters.insert(status);
             }
             Ok(filtered_courses)
         }
