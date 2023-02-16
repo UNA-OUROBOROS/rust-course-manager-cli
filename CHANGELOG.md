@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.0.5] - 2023-02-15
+
 ### added
 
 - when `add` filter is used in the `list` subcommand after other filters it will add the remaining filters to the list of courses to be shown and before the rest of the filters added
