@@ -88,7 +88,7 @@ pub(crate) struct Approve {
     #[arg(
         short = 'r',
         long = "recursive",
-        help = "accept courses recursively, so any course that is required by the approved courses will be approved too forcibly",
+        help = "accept courses recursively, so any course that was required by the approved courses will be approved too forcibly",
         required = false,
         default_value = "false"
     )]

@@ -9,6 +9,7 @@
 ### fixed
 
 - fixed multiples typos where `aprove` was used instead of `approve`
+- improved translation for the `recursive` argument in the `approve` subcommand
 
 ## [0.0.4] - 2023-02-14
 
