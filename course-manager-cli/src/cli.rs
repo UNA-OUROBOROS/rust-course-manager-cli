@@ -1,4 +1,5 @@
 use clap::{command, Args, Parser, Subcommand, ValueEnum};
+use enum_iterator::{all, Sequence};
 use tabled::{Style, Table};
 
 #[derive(Parser)]
@@ -150,7 +151,7 @@ pub(crate) enum TableStyle {
     Empty,
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum, Sequence)]
 pub(crate) enum CourseStatus {
     All,
     Blocked,
@@ -164,9 +165,37 @@ pub(crate) fn to_course_statuses(
     match status {
         Some(status) => {
             let mut course_statuses: Vec<course_manager::courses::CourseStatus> = Vec::new();
-            for s in status {
+            // use for with index to get the index of the status
+            for (i, s) in status.iter().enumerate() {
                 match s {
-                    CourseStatus::All => return None,
+                    CourseStatus::All => {
+                        // push the remaining statuses
+                        for s in all::<CourseStatus>().collect::<Vec<CourseStatus>>().iter() {
+                            let course = match s {
+                                CourseStatus::All => continue,
+                                CourseStatus::Blocked => {
+                                    course_manager::courses::CourseStatus::Blocked
+                                }
+                                CourseStatus::Approved => {
+                                    course_manager::courses::CourseStatus::Approved
+                                }
+                                CourseStatus::Available => {
+                                    course_manager::courses::CourseStatus::Available
+                                }
+                            };
+                            // ignore any status that is already in the vector
+                            if !course_statuses.contains(&course) {
+                                continue;
+                            }
+                            // and any course that is after the current parameter
+                            if status.iter().enumerate().any(|(j, fs)| {
+                                return j > i && fs == s;
+                            }) {
+                                continue;
+                            }
+                            course_statuses.push(course);
+                        }
+                    }
                     CourseStatus::Blocked => {
                         course_statuses.push(course_manager::courses::CourseStatus::Blocked)
                     }

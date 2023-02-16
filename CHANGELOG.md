@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### added
+
+- when `add` filter is used in the `list` subcommand after other filters it will add the remaining filters to the list of courses to be shown and before the rest of the filters added
+
 ### fixed
 
 - fixed multiples typos where `aprove` was used instead of `approve`
