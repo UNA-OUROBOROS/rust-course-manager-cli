@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### fixed
+
+- fixed multiples typos where `aprove` was used instead of `approve`
+
 ## [0.0.4] - 2023-02-14
 
 ### added

@@ -127,7 +127,7 @@ fn main() {
                 println!("{:#?}", e);
             }
         },
-        Some(Commands::Aprove(list_courses)) => match requires_init() {
+        Some(Commands::Approve(list_courses)) => match requires_init() {
             Ok(requires_init) => {
                 if requires_init {
                     println!("please init the courses list first");

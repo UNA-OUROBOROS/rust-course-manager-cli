@@ -38,8 +38,8 @@ pub fn initialize_courses(courses: Vec<courses::Course>) -> Result<(), error::Er
     let path = path.join("courses.json");
     let json = serde_json::to_string(&courses).map_err(|e| error::Error::JsonSerialization(e))?;
     std::fs::write(&path, json).map_err(|e| error::Error::CouldNotCreateFile(path, e))?;
-    // additionally create a aproved.json whcih is a vector of strings
-    save_aproved(&Vec::new())?;
+    // additionally create a approved.json whcih is a vector of strings
+    save_approved(&Vec::new())?;
     Ok(())
 }
 
@@ -57,7 +57,7 @@ pub fn get_courses(status: Option<Vec<CourseStatus>>) -> Result<Vec<Course>, err
         Some(statuses) => {
             // if all is in the filter, return all courses
             // load approved.json
-            let approved: Vec<String> = load_aproved()?;
+            let approved: Vec<String> = load_approved()?;
             let mut filtered_courses: Vec<Course> = Vec::new();
             // keep track of filters that have been applied
             let mut applied_filters: HashSet<CourseStatus> = HashSet::new();
@@ -68,13 +68,13 @@ pub fn get_courses(status: Option<Vec<CourseStatus>>) -> Result<Vec<Course>, err
                 }
                 match status {
                     CourseStatus::Blocked | CourseStatus::Available => {
-                        let requires_aproved = status == CourseStatus::Available;
+                        let requires_approved = status == CourseStatus::Available;
                         // fetch all courses that are not in approved.json
                         for mut course in &mut courses {
                             if !approved.contains(&course.code) {
                                 // and if that the status is the same as the filter
                                 let requires_met = requirements_met(&course, &approved);
-                                if requires_aproved == requires_met {
+                                if requires_approved == requires_met {
                                     course.status = Some(status);
                                     filtered_courses.push(course.clone());
                                 }
@@ -96,7 +96,7 @@ pub fn get_courses(status: Option<Vec<CourseStatus>>) -> Result<Vec<Course>, err
             Ok(filtered_courses)
         }
         None => {
-            let approved: Vec<String> = load_aproved()?;
+            let approved: Vec<String> = load_approved()?;
             // set the status of each course
             for course in &mut courses {
                 let requires_met = requirements_met(&course, &approved);
@@ -161,7 +161,7 @@ pub fn approve_courses(
     cascade: bool,
     force: bool,
 ) -> Result<(), error::Error> {
-    let mut approved: Vec<String> = load_aproved()?;
+    let mut approved: Vec<String> = load_approved()?;
     if cascade {
         let courses_list = get_courses(None)?;
         // set of courses that will be approved
@@ -205,7 +205,7 @@ pub fn approve_courses(
             approved.push(course.code.clone());
         }
     }
-    save_aproved(&approved)?;
+    save_approved(&approved)?;
     Ok(())
 }
 
@@ -216,7 +216,7 @@ pub fn reject_courses(
     cascade: bool,
     force: bool,
 ) -> Result<(), error::Error> {
-    let mut aproved = load_aproved()?;
+    let mut approved = load_approved()?;
     if cascade {
         let courses_list = get_courses(None)?;
         // set of courses that will be rejected
@@ -226,7 +226,7 @@ pub fn reject_courses(
             // do not reject courses that are not approved
             let cascade_courses = get_cascade_courses(course, &courses_list);
             for cascade_course in cascade_courses {
-                if aproved.contains(&cascade_course) {
+                if approved.contains(&cascade_course) {
                     rejected_courses.insert(cascade_course);
                 }
             }
@@ -235,22 +235,22 @@ pub fn reject_courses(
         return reject_courses(&rejected_courses.into_iter().collect(), false, force);
     } else {
         for course in courses {
-            if !aproved.contains(&course) && !force {
+            if !approved.contains(&course) && !force {
                 return Err(error::Error::CourseNotApproved(course.to_string()));
             }
         }
-        // remove the courses from the aproved list
-        aproved = aproved
+        // remove the courses from the approved list
+        approved = approved
             .into_iter()
             .filter(|c| !courses.contains(&c))
             .collect();
     }
-    // save the new aproved.json
-    save_aproved(&aproved)?;
+    // save the new approved.json
+    save_approved(&approved)?;
     Ok(())
 }
 
-fn load_aproved() -> Result<Vec<String>, error::Error> {
+fn load_approved() -> Result<Vec<String>, error::Error> {
     let path = courses_files_path()?.join("approved.json");
     let json = std::fs::read_to_string(&path)
         .map_err(|e| error::Error::CouldNotOpenFile(path.clone(), e))?;
@@ -259,7 +259,7 @@ fn load_aproved() -> Result<Vec<String>, error::Error> {
     Ok(approved)
 }
 
-fn save_aproved(courses: &Vec<String>) -> Result<(), error::Error> {
+fn save_approved(courses: &Vec<String>) -> Result<(), error::Error> {
     let path = courses_files_path()?.join("approved.json");
     let json = serde_json::to_string(&courses).map_err(|e| error::Error::JsonSerialization(e))?;
     std::fs::write(&path, json).map_err(|e| error::Error::CouldNotCreateFile(path, e))?;

@@ -20,8 +20,8 @@ pub(crate) enum Commands {
     Init(Init),
     #[command(about = "List and filter courses")]
     List(List),
-    #[command(about = "Aprove a series of courses")]
-    Aprove(Aprove),
+    #[command(about = "approve a series of courses")]
+    Approve(Approve),
     #[command(about = "Reject a series of courses")]
     Reject(Reject),
 }
@@ -53,8 +53,8 @@ pub(crate) struct List {
         help = "Status of the courses to list",
         long_help = indoc::indoc!{"
         Status of the courses to list, can be chained, for example:
-        course-manager list -s aproved -s rejected
-        will list all the courses that are aproved or rejected (in the order the filters are applied)
+        course-manager list -s approved -s rejected
+        will list all the courses that are approved or rejected (in the order the filters are applied)
         "},
         required = false
     )]
@@ -81,13 +81,13 @@ pub(crate) struct List {
 }
 
 #[derive(Args)]
-pub(crate) struct Aprove {
-    #[arg(help = "Courses to aprove", required = true)]
+pub(crate) struct Approve {
+    #[arg(help = "Courses to approve", required = true)]
     pub(crate) courses: Vec<String>,
     #[arg(
         short = 'r',
         long = "recursive",
-        help = "accept courses recursively, so any course that is required by the aproved courses will be aproved too forcibly",
+        help = "accept courses recursively, so any course that is required by the approved courses will be approved too forcibly",
         required = false,
         default_value = "false"
     )]
@@ -96,7 +96,7 @@ pub(crate) struct Aprove {
     #[arg(
         short = 'f',
         long = "force",
-        help = "force the aproval of the courses, even if they have unaproved requirements",
+        help = "force the aproval of the courses, even if they have unapproved requirements",
         required = false,
         default_value = "false"
     )]
@@ -120,7 +120,7 @@ pub(crate) struct Reject {
     #[arg(
         short = 'f',
         long = "force",
-        help = "force the rejection of the courses, even if they have aproved requirements",
+        help = "force the rejection of the courses, even if they have approved requirements",
         required = false,
         default_value = "false"
     )]
